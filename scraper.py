@@ -1,4 +1,5 @@
 import re
+from bs4 import BeautifulSoup
 from urllib.parse import urlparse
 
 def scraper(url, resp):
@@ -15,6 +16,45 @@ def extract_next_links(url, resp):
     #         resp.raw_response.url: the url, again
     #         resp.raw_response.content: the content of the page!
     # Return a list with the hyperlinks (as strings) scrapped from resp.raw_response.content
+    
+    
+    
+    if (resp.status != 200):
+        i = 0
+        while i < 10:
+            print("ERROR")  
+            i += 1
+            # maybe just skip link if not 200?
+            
+
+    # get links
+    # print(resp.raw_response.content)
+    
+    
+    # write to disk all links traveled too, also keep a list of the list travled to avoid rerunning links and 
+    # also avoid inf traps.
+    
+    soup = BeautifulSoup(resp.raw_response.content, 'html.parser')
+    # get data (tokenize)
+
+    
+    
+    # compare tokens from other sites (?) see what is considered low data maybe if total token -common word is under x we just skip it and move to the next url
+    
+    
+    
+    # get links
+    for link in soup.find_all('a'):
+        print(link.get('href'))
+        print(is_valid(link.get('href')))
+        # maybe transform the link here
+    
+    
+    # heh chill asf
+    # probably have a list of scrapped sites
+    # if site comes up again stop scraping it lol
+    # write to disk like links.txt or some stuff
+    # sugoi
     return list()
 
 def is_valid(url):
@@ -25,7 +65,9 @@ def is_valid(url):
         parsed = urlparse(url)
         if parsed.scheme not in set(["http", "https"]):
             return False
-        return not re.match(
+        # woah so epic if wrong file type do not scrape sugoi.
+        
+        return not re.match( 
             r".*\.(css|js|bmp|gif|jpe?g|ico"
             + r"|png|tiff?|mid|mp2|mp3|mp4"
             + r"|wav|avi|mov|mpeg|ram|m4v|mkv|ogg|ogv|pdf"
