@@ -1,12 +1,26 @@
 import re
 from bs4 import BeautifulSoup
-from urllib.parse import urlparse
+from time import sleep
+from urllib.parse import urlparse, urlunparse
+
 
 def scraper(url, resp):
     links = extract_next_links(url, resp)
     return [link for link in links if is_valid(link)]
 
+
+def tokenize(html):
+    
+    tokens = []
+    
+    
+    # idea write token to logs url - token list?, or make a new txt write to disk for each url (probably terrible idea)
+    
+    return tokens
+
+    
 def extract_next_links(url, resp):
+    sleep(.5)
     # Implementation required.
     # url: the URL that was used to get the page
     # resp.url: the actual url of the page
@@ -18,13 +32,9 @@ def extract_next_links(url, resp):
     # Return a list with the hyperlinks (as strings) scrapped from resp.raw_response.content
     
     
-    
-    if (resp.status != 200):
-        i = 0
-        while i < 10:
-            print("ERROR")  
-            i += 1
-            # maybe just skip link if not 200?
+    if resp.status != 200:
+        print(f"ERROR: Status {resp.status} for {url}")
+        return []  # Skip this URL if response is not 200
             
 
     # get links
@@ -36,38 +46,63 @@ def extract_next_links(url, resp):
     
     soup = BeautifulSoup(resp.raw_response.content, 'html.parser')
     # get data (tokenize)
+    for element in soup(["script", "style", "meta", "noscript", "header", "footer", "aside"]):
+        element.extract()
 
+    # Get visible text
+    text = soup.get_text(separator=" ")
+
+    # Clean up whitespace and non-text characters
+    text = re.sub(r'\s+', ' ', text).strip()
     
+    
+    print (text)
+    # TOKENIZER HERE *************************************************************** [maybe move this after checking if valid html might fuck up the tokenizer]
     
     # compare tokens from other sites (?) see what is considered low data maybe if total token -common word is under x we just skip it and move to the next url
     
     
-    
+    print(f"Crawling: {resp.raw_response.url}")
     # get links
+    evil_list_of_links = []
+    
     for link in soup.find_all('a'):
-        print(link.get('href'))
-        print(is_valid(link.get('href')))
-        # maybe transform the link here
+        href = link.get('href')
+        if not href:
+            continue  # Skip NoneType links
+        
+        # Remove fragment
+        parsed = urlparse(href)._replace(fragment="")
+        clean_link = urlunparse(parsed)  # Convert ParseResult back to string
+        
+        if is_valid(clean_link):
+            evil_list_of_links.append(clean_link)
+    
+    return evil_list_of_links
+        
     
     
-    # heh chill asf
-    # probably have a list of scrapped sites
-    # if site comes up again stop scraping it lol
-    # write to disk like links.txt or some stuff
-    # sugoi
-    return list()
 
 def is_valid(url):
     # Decide whether to crawl this url or not. 
     # If you decide to crawl it, return True; otherwise return False.
     # There are already some conditions that return False.
+    
+    # ADD FILTERS HERE FOR SPECIFIC WEBSITES
+    
+    #  read worker.log 
+    
     try:
         parsed = urlparse(url)
+        # remove the fragment
+        parsed = parsed._replace(fragment="")
+        
         if parsed.scheme not in set(["http", "https"]):
             return False
         # woah so epic if wrong file type do not scrape sugoi.
         
-        return not re.match( 
+        # in the name lel
+        is_valid_file = not re.match( 
             r".*\.(css|js|bmp|gif|jpe?g|ico"
             + r"|png|tiff?|mid|mp2|mp3|mp4"
             + r"|wav|avi|mov|mpeg|ram|m4v|mkv|ogg|ogv|pdf"
@@ -76,6 +111,15 @@ def is_valid(url):
             + r"|epub|dll|cnf|tgz|sha1"
             + r"|thmx|mso|arff|rtf|jar|csv"
             + r"|rm|smil|wmv|swf|wma|zip|rar|gz)$", parsed.path.lower())
+        # checks if awesome domain
+        if (re.match(
+            r"^(.*\.)?(ics|cs|informatics|stat)\.uci\.edu$", parsed.netloc.lower()) == None):
+            is_valid_domain = False
+        else:
+            is_valid_domain = True
+        
+        
+        return (is_valid_file and is_valid_domain)
 
     except TypeError:
         print ("TypeError for ", parsed)
