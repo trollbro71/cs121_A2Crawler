@@ -8,17 +8,23 @@ import hashlib
 seen_simhashes = set()
 most_words = {}
 # this should have url,and number of tokens :D
-
+Log_location = "/home/thomaht3/cs121_A2Crawler/Logs/REMOVED.LOG"   # please remove this after testing.. or not who cares
 
 def tokenize(html_body):
     """
     Tokenizes the HTML content into words, cleans the text, and returns a list of tokens.
     """
     soup = BeautifulSoup(html_body, 'html.parser')
-    text = soup.get_text()  # Extract text from HTML
-    cleaned_text = re.sub(r"[^a-zA-Z0-9]", ' ', text).lower()  # Clean and lowercase
-    tokens = cleaned_text.split()  # Split into words
-    return tokens
+    text = soup.get_text().strip()  # Extract text from HTML
+    #  had bad tokenization....
+    for tag in soup(["header", "footer", "nav", "aside", "script", "style"]):
+        tag.extract() 
+    main_content = soup.find("main") or soup.find("article") or soup.find("div", class_="content")
+    text = main_content.get_text(separator=" ") if main_content else soup.get_text(separator=" ")
+    tokens = re.findall(r"\b\w+\b", text.lower())
+    for x in tokens:
+        print(x)
+    return tokens #praying this fucking works
 
 def compute_token_weights(tokens):
     """
@@ -35,7 +41,6 @@ def compute_token_weights(tokens):
     # gobal var holding all the tokens.. when keyboard interupt write to disk all the tokens ordered at the end or have a counter every 100ish links we print out the top 50 tokens :D
     # or just print out top 50 tokens ignoring stop words
     stop_words = []
-    
     return token_map
 
 
@@ -72,7 +77,6 @@ def compute_simhash(tokens, token_weights):
             simhash |= 1 << i
     return simhash
 
-
 def scraper(url, resp):
     print(f"innit crawling {url}")
     print(resp.status//100)
@@ -85,7 +89,7 @@ def scraper(url, resp):
             return [link for link in links if is_valid(link)] 
     else:
         return []
-    
+
 def extract_next_links(url, resp):
     # Implementation required.
     # url: the URL that was used to get the page
@@ -96,20 +100,16 @@ def extract_next_links(url, resp):
     #         resp.raw_response.url: the url, again
     #         resp.raw_response.content: the content of the page!
     # Return a list with the hyperlinks (as strings) scrapped from resp.raw_response.content
-    
     # we can assume that links that arrive here are perfect and have went through the init filter! maybe do some hashing and stuff here and use it to match maybe write a json? or just keep a big ass hash table
     # hmm and then from there we go to is_valid or something and we also do a check if the hash is good?
-
     # Check for similar content
     if (url not in ["https://www.ics.uci.edu", "https://www.cs.uci.edu", "https://www.stat.uci.edu"]):
         if is_similar(resp.raw_response.content, seen_simhashes):
             print(f"Similar content detected for {url}")
-            with open("/home/thomaht3/cs121_A2Crawler/Logs/REMOVED.LOG", "a") as my_file:
+            with open(Log_location, "a") as my_file:
                 my_file.write(f"{url} has similar content alr looked at..\n")
                 my_file.close()
-            
             return []
-
     soup = BeautifulSoup(resp.raw_response.content, 'html.parser')
     print(f"CRAWLING: {resp.raw_response.url}")
     evil_list_of_links = []
@@ -119,15 +119,9 @@ def extract_next_links(url, resp):
             continue
         parsed = urlparse(href)._replace(fragment="")
         clean_link = urlunparse(parsed)
-        evil_list_of_links.append(clean_link)
-        
-        
-        
+        evil_list_of_links.append(clean_link)  
     print(f"found {len(evil_list_of_links)} links from {resp.raw_response.url}")
     return evil_list_of_links
-        
-    
-    
 
 def is_valid(url):
     # Decide whether to crawl this url or not. 
@@ -135,8 +129,6 @@ def is_valid(url):
     # There are already some conditions that return False.
     # ADD FILTERS HERE FOR SPECIFIC WEBSITES
             # checks if awesome domain
-
-
     try:   
         pattern = (
             r"\.(css|js|bmp|gif|jpe?g|ico|png|tiff?|mid|mp2|mp3|mp4|"
@@ -153,7 +145,7 @@ def is_valid(url):
         path = parsed.path.lower()
         parsed_path = unquote(parsed.path.lower())
         parsed_query = unquote(parsed.query.lower())
-
+        
         print(domain, path)
 
         # checks for the valid file type
@@ -168,8 +160,7 @@ def is_valid(url):
             is_valid_domain = False
         else:
             is_valid_domain = True
-        
-        
+
         # ok so like from here maybe we should automatically check for the robotx.txt :DDD
         # Filters for ics.uci.edu
         if domain == "ics.uci.edu":
@@ -221,7 +212,7 @@ def is_valid(url):
                     with open("/home/thomaht3/cs121_A2Crawler/Logs/REMOVED.LOG", "a") as my_file:
                         my_file.write(f"Blocked by hardcoded filter (stat.uci.edu): {url}\n")
                     return False
-                
+
         if (is_valid_file and is_valid_domain == False):
             with open("/home/thomaht3/cs121_A2Crawler/Logs/REMOVED.LOG", "a") as my_file:
                 my_file.write(f"FILE: {url} | valid file: {is_valid_file}; valid domain : {is_valid_domain}\n")
