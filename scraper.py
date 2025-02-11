@@ -6,6 +6,8 @@ import hashlib
 
 # global
 seen_simhashes = set()
+most_words = {}
+# this should have url,and number of tokens :D
 
 
 def tokenize(html_body):
@@ -31,6 +33,9 @@ def compute_token_weights(tokens):
             
     # should probably compute the # of words and save the largest - link 
     # gobal var holding all the tokens.. when keyboard interupt write to disk all the tokens ordered at the end or have a counter every 100ish links we print out the top 50 tokens :D
+    # or just print out top 50 tokens ignoring stop words
+    stop_words = []
+    
     return token_map
 
 
@@ -96,9 +101,14 @@ def extract_next_links(url, resp):
     # hmm and then from there we go to is_valid or something and we also do a check if the hash is good?
 
     # Check for similar content
-    if is_similar(resp.raw_response.content, seen_simhashes):
-        print(f"Similar content detected for {url}")
-        return []
+    if (url not in ["https://www.ics.uci.edu", "https://www.cs.uci.edu", "https://www.stat.uci.edu"]):
+        if is_similar(resp.raw_response.content, seen_simhashes):
+            print(f"Similar content detected for {url}")
+            with open("/home/thomaht3/cs121_A2Crawler/Logs/REMOVED.LOG", "a") as my_file:
+                my_file.write(f"{url} has similar content alr looked at..\n")
+                my_file.close()
+            
+            return []
 
     soup = BeautifulSoup(resp.raw_response.content, 'html.parser')
     print(f"CRAWLING: {resp.raw_response.url}")
@@ -165,24 +175,24 @@ def is_valid(url):
         if domain == "ics.uci.edu":
             if path.startswith("/people") or path.startswith("/happening"):
                 print(f"Blocked by hardcoded filter (ics.uci.edu): {url}")
-                with open("/home/thomaht3/cs121_A2Crawler/Logs/REMOVED.LOG", "w") as my_file:
-                    my_file.write(f"Blocked by hardcoded filter (ics.uci.edu): {url} path: {path} ")
+                with open("/home/thomaht3/cs121_A2Crawler/Logs/REMOVED.LOG", "a") as my_file:
+                    my_file.write(f"Blocked by hardcoded filter (ics.uci.edu): {url} path: {path}\n")
                 return False
 
         # Filters for cs.uci.edu
         elif domain == "cs.uci.edu":
             if path.startswith("/people") or path.startswith("/happening"):
                 print(f"Blocked by hardcoded filter (cs.uci.edu): {url}")
-                with open("/home/thomaht3/cs121_A2Crawler/Logs/REMOVED.LOG", "w") as my_file:
-                    my_file.write(f"Blocked by hardcoded filter (cs.uci.edu): {url} path: {path} ")
+                with open("/home/thomaht3/cs121_A2Crawler/Logs/REMOVED.LOG", "a") as my_file:
+                    my_file.write(f"Blocked by hardcoded filter (cs.uci.edu): {url} path: {path}\n")
                 return False
 
         # Filters for informatics.uci.edu
         elif domain == "informatics.uci.edu":
             if path.startswith("/wp-admin/"):
                 print(f"Blocked by hardcoded filter (informatics.uci.edu): {url}")
-                with open("/home/thomaht3/cs121_A2Crawler/Logs/REMOVED.LOG", "w") as my_file:
-                    my_file.write(f"Blocked by hardcoded filter (informatics.uci.edu): {url} path: {path} ")
+                with open("/home/thomaht3/cs121_A2Crawler/Logs/REMOVED.LOG", "a") as my_file:
+                    my_file.write(f"Blocked by hardcoded filter (informatics.uci.edu): {url} path: {path}\n")
                 return False
 
         # Filters for stat.uci.edu
@@ -191,8 +201,8 @@ def is_valid(url):
                 if (path.startswith("/wp-admin/admin-ajax.php")):
                     return True
                 print(f"Blocked by hardcoded filter (stat.uci.edu): {url}")
-                with open("/home/thomaht3/cs121_A2Crawler/Logs/REMOVED.LOG", "w") as my_file:
-                    my_file.write(f"Blocked by hardcoded filter (stat.uci.edu): {url} path: {path} ")
+                with open("/home/thomaht3/cs121_A2Crawler/Logs/REMOVED.LOG", "a") as my_file:
+                    my_file.write(f"Blocked by hardcoded filter (stat.uci.edu): {url} path: {path}\n")
                 return False
             # Allow specific research paths
             if path.startswith("/research/"):
@@ -208,13 +218,13 @@ def is_valid(url):
                 ]
                 if not any(path.startswith(allowed_path) for allowed_path in allowed_research_paths):
                     print(f"Blocked by hardcoded filter (stat.uci.edu): {url} path: {path} ")
-                    with open("/home/thomaht3/cs121_A2Crawler/Logs/REMOVED.LOG", "w") as my_file:
-                        my_file.write(f"Blocked by hardcoded filter (stat.uci.edu): {url}")
+                    with open("/home/thomaht3/cs121_A2Crawler/Logs/REMOVED.LOG", "a") as my_file:
+                        my_file.write(f"Blocked by hardcoded filter (stat.uci.edu): {url}\n")
                     return False
                 
         if (is_valid_file and is_valid_domain == False):
-            with open("/home/thomaht3/cs121_A2Crawler/Logs/REMOVED.LOG", "w") as my_file:
-                my_file.write(f"FILE: {url} | valid file: {is_valid_file}; valid domain : {is_valid_domain}")
+            with open("/home/thomaht3/cs121_A2Crawler/Logs/REMOVED.LOG", "a") as my_file:
+                my_file.write(f"FILE: {url} | valid file: {is_valid_file}; valid domain : {is_valid_domain}\n")
         return (is_valid_file and is_valid_domain)
 
     except TypeError:
