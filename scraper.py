@@ -7,8 +7,16 @@ import hashlib
 # global
 seen_simhashes = set()
 most_words = {}
-# this should have url,and number of tokens :D
-Log_location = "/home/thomaht3/cs121_A2Crawler/Logs/REMOVED.LOG"   # please remove this after testing.. or not who cares
+top_page  = ["", 0]
+DEL_LOG_LOCATION = "/home/thomaht3/cs121_A2Crawler/Logs/REMOVED.LOG"
+seed_sites = ["https://www.ics.uci.edu", "https://www.cs.uci.edu", "https://www.stat.uci.edu"]
+
+
+def del_log_message(reason, url, log_file = DEL_LOG_LOCATION) -> None:
+    """Helper function for del_logging messages"""
+    with open(log_file, "a") as f:
+        f.write(f"del: {url} bc: {reason}\n")
+        
 
 def tokenize(html_body):
     """
@@ -16,49 +24,77 @@ def tokenize(html_body):
     """
     soup = BeautifulSoup(html_body, 'html.parser')
     text = soup.get_text().strip()  # Extract text from HTML
-    #  had bad tokenization....
     for tag in soup(["header", "footer", "nav", "aside", "script", "style"]):
         tag.extract() 
     main_content = soup.find("main") or soup.find("article") or soup.find("div", class_="content")
     text = main_content.get_text(separator=" ") if main_content else soup.get_text(separator=" ")
     tokens = re.findall(r"\b\w+\b", text.lower())
-    for x in tokens:
-        print(x)
-    return tokens #praying this fucking works
+    return tokens
 
 def compute_token_weights(tokens):
     """
     Computes the frequency of each token and returns a dictionary of token: weight.
     """
+    stopwords = [
+    "a", "about", "above", "after", "again", "against", "all", "am", "an", "and", "any", "are", "aren't", "as", "at",
+    "be", "because", "been", "before", "being", "below", "between", "both", "but", "by", "can't", "cannot", "could",
+    "couldn't", "did", "didn't", "do", "does", "doesn't", "doing", "don't", "down", "during", "each", "few", "for",
+    "from", "further", "had", "hadn't", "has", "hasn't", "have", "haven't", "having", "he", "he'd", "he'll", "he's",
+    "her", "here", "here's", "hers", "herself", "him", "himself", "his", "how", "how's", "i", "i'd", "i'll", "i'm",
+    "i've", "if", "in", "into", "is", "isn't", "it", "it's", "its", "itself", "let's", "me", "more", "most", "mustn't",
+    "my", "myself", "no", "nor", "not", "of", "off", "on", "once", "only", "or", "other", "ought", "our", "ours",
+    "ourselves", "out", "over", "own", "same", "shan't", "she", "she'd", "she'll", "she's", "should", "shouldn't", "so",
+    "some", "such", "than", "that", "that's", "the", "their", "theirs", "them", "themselves", "then", "there", "there's",
+    "these", "they", "they'd", "they'll", "they're", "they've", "this", "those", "through", "to", "too", "under", "until",
+    "up", "very", "was", "wasn't", "we", "we'd", "we'll", "we're", "we've", "were", "weren't", "what", "what's", "when",
+    "when's", "where", "where's", "which", "while", "who", "who's", "whom", "why", "why's", "with", "won't", "would",
+    "wouldn't", "you", "you'd", "you'll", "you're", "you've", "your", "yours", "yourself", "yourselves"
+]
     token_map = {}
     for token in tokens:
         if token in token_map:
             token_map[token] += 1
+            if len(token) > 3 and token not in stopwords and token.isnumeric() == False:
+                most_words[token] += 1
         else:
             token_map[token] = 1
-            
-    # should probably compute the # of words and save the largest - link 
-    # gobal var holding all the tokens.. when keyboard interupt write to disk all the tokens ordered at the end or have a counter every 100ish links we print out the top 50 tokens :D
-    # or just print out top 50 tokens ignoring stop words
-    stop_words = []
+            most_words[token] = 1
+
+    sorted_words = sorted(most_words.items(), key=lambda x: x[1], reverse=True)
+    top_words = sorted_words[:250]
+    
+    
+    with open("/home/thomaht3/cs121_A2Crawler/Logs/TOKEN.LOG", "w", encoding="utf-8") as f:
+        for word, count in top_words:
+            f.write(f"{word} - {count}\n")
+    
     return token_map
 
 
-def is_similar(content, seen_simhashes, threshold=3):
+def is_similar(url, content, seen_simhashes, threshold=2,):
     """
     Checks if the content is similar to any previously seen SimHash.
     """
     tokens = tokenize(content)
+    if len(tokens) > top_page[1]:
+        top_page[0] = url
+        top_page[1] = len(tokens)
+    print(top_page)
     token_weights = compute_token_weights(tokens)
+    if url in seed_sites: #we want to crawl these sites
+        return False
+
     simhash = compute_simhash(tokens, token_weights)
     for seen_hash in seen_simhashes:
-        hamming_distance = bin(simhash ^ seen_hash).count('1')
+        hamming_distance = bin(simhash ^ seen_hash) #xor different bits
+        hamming_distance = hamming_distance.count("1") # count the different bits
         if hamming_distance <= threshold:
             return True  # Similar content found
-    seen_simhashes.add(simhash)
+    seen_simhashes.add(simhash) # add to the seen hashes
     return False  # No similar content found
 
-def compute_simhash(tokens, token_weights):
+def compute_simhash(z, token_weights):
+    # redo this fuck code
     """
     Computes the SimHash fingerprint for a list of tokens and their weights.
     """
@@ -78,12 +114,12 @@ def compute_simhash(tokens, token_weights):
     return simhash
 
 def scraper(url, resp):
-    print(f"innit crawling {url}")
-    print(resp.status//100)
-    if (resp.status//100 ==6 or resp.status//100 ==4):
-        print(f"BAD RESPONSE {resp.status//100}")
-        return []
-    if (is_valid(resp.raw_response.url)):
+    print(f"innit crawling {url}") #link in
+    if resp.status // 100 in {4, 5, 6}:
+        print(f"Bad response ({resp.status}) for {url}")
+        del_log_message(f"bad resp {resp.status}", url)
+        return [] # just dont read it :D
+    if (is_valid(resp.raw_response.url)or url in seed_sites):
             print(f"innit crawling {resp.raw_response.url}")
             links = extract_next_links(url, resp)
             return [link for link in links if is_valid(link)] 
@@ -103,13 +139,10 @@ def extract_next_links(url, resp):
     # we can assume that links that arrive here are perfect and have went through the init filter! maybe do some hashing and stuff here and use it to match maybe write a json? or just keep a big ass hash table
     # hmm and then from there we go to is_valid or something and we also do a check if the hash is good?
     # Check for similar content
-    if (url not in ["https://www.ics.uci.edu", "https://www.cs.uci.edu", "https://www.stat.uci.edu"]):
-        if is_similar(resp.raw_response.content, seen_simhashes):
-            print(f"Similar content detected for {url}")
-            with open(Log_location, "a") as my_file:
-                my_file.write(f"{url} has similar content alr looked at..\n")
-                my_file.close()
-            return []
+    if is_similar(url, resp.raw_response.content, seen_simhashes):
+        print(f"Similar content detected for {url}")
+        del_log_message("similar", url)
+        return []
     soup = BeautifulSoup(resp.raw_response.content, 'html.parser')
     print(f"CRAWLING: {resp.raw_response.url}")
     evil_list_of_links = []
@@ -120,7 +153,6 @@ def extract_next_links(url, resp):
         parsed = urlparse(href)._replace(fragment="")
         clean_link = urlunparse(parsed)
         evil_list_of_links.append(clean_link)  
-    print(f"found {len(evil_list_of_links)} links from {resp.raw_response.url}")
     return evil_list_of_links
 
 def is_valid(url):
@@ -131,11 +163,11 @@ def is_valid(url):
             # checks if awesome domain
     try:   
         pattern = (
-            r"\.(css|js|bmp|gif|jpe?g|ico|png|tiff?|mid|mp2|mp3|mp4|"
+            r"\.(outlook-ical=1|css|js|bmp|gif|jpe?g|ico|png|tiff?|mid|mp2|mp3|mp4|"
             r"wav|avi|mov|mpeg|ram|m4v|mkv|ogg|ogv|pdf|ps|eps|tex|ppt|"
-            r"pptx|doc|docx|xls|xlsx|names|data|dat|exe|bz2|tar|msi|bin|"
-            r"7z|psd|dmg|iso|epub|dll|cnf|tgz|sha1|thmx|mso|arff|rtf|jar|ppsx|"
-            r"csv|rm|smil|wmv|swf|wma|zip|rar|gz|txt|svg|apk|webp|php)$"
+            r"pptx|doc|docx|xls|xlsx|names|data|dat|exe|bz2|tar|msi|bin|odc|"
+            r"7z|psd|dmg|iso|epub|dll|cnf|tgz|sha1|thmx|mso|arff|apk|war|sql|rtf|jar|ppsx|img|"
+            r"csv|rm|smil|wmv|swf|wma|zip|rar|gz|svg|apk|webp)$"
         )
         parsed = urlparse(url)
         if parsed.scheme not in set(["http", "https"]):
@@ -145,12 +177,10 @@ def is_valid(url):
         path = parsed.path.lower()
         parsed_path = unquote(parsed.path.lower())
         parsed_query = unquote(parsed.query.lower())
-        
-        print(domain, path)
 
         # checks for the valid file type
         if re.search(pattern, parsed_path) or re.search(pattern, parsed_query):
-            print(f"XXXXXXXXXXXXXXXXXXXXXXXXXXXXRejected file: {parsed.path.lower()}")
+            print(f"Rejected file: {parsed.path.lower()}")
             is_valid_file = False
         else:
             is_valid_file = True
@@ -160,30 +190,24 @@ def is_valid(url):
             is_valid_domain = False
         else:
             is_valid_domain = True
-
-        # ok so like from here maybe we should automatically check for the robotx.txt :DDD
         # Filters for ics.uci.edu
         if domain == "ics.uci.edu":
             if path.startswith("/people") or path.startswith("/happening"):
-                print(f"Blocked by hardcoded filter (ics.uci.edu): {url}")
-                with open("/home/thomaht3/cs121_A2Crawler/Logs/REMOVED.LOG", "a") as my_file:
-                    my_file.write(f"Blocked by hardcoded filter (ics.uci.edu): {url} path: {path}\n")
+                del_log_message(f"Blocked by hardcoded filter (ics.uci.edu) path: {path}", url)
                 return False
+            with open("/home/thomaht3/cs121_A2Crawler/Logs/ics.log", "a", encoding="utf-8") as f:
+                f.write(f"{parsed.netloc} - {path}\n") # work on this as the final one and do a test of a full crawl
 
         # Filters for cs.uci.edu
         elif domain == "cs.uci.edu":
             if path.startswith("/people") or path.startswith("/happening"):
-                print(f"Blocked by hardcoded filter (cs.uci.edu): {url}")
-                with open("/home/thomaht3/cs121_A2Crawler/Logs/REMOVED.LOG", "a") as my_file:
-                    my_file.write(f"Blocked by hardcoded filter (cs.uci.edu): {url} path: {path}\n")
+                del_log_message(f"Blocked by hardcoded filter (cs.uci.edu) path: {path}", url)
                 return False
 
         # Filters for informatics.uci.edu
         elif domain == "informatics.uci.edu":
             if path.startswith("/wp-admin/"):
-                print(f"Blocked by hardcoded filter (informatics.uci.edu): {url}")
-                with open("/home/thomaht3/cs121_A2Crawler/Logs/REMOVED.LOG", "a") as my_file:
-                    my_file.write(f"Blocked by hardcoded filter (informatics.uci.edu): {url} path: {path}\n")
+                del_log_message(f"Blocked by hardcoded filter (informatics.uci.edu) path: {path}", url)
                 return False
 
         # Filters for stat.uci.edu
@@ -191,9 +215,7 @@ def is_valid(url):
             if path.startswith("/wp-admin/"):
                 if (path.startswith("/wp-admin/admin-ajax.php")):
                     return True
-                print(f"Blocked by hardcoded filter (stat.uci.edu): {url}")
-                with open("/home/thomaht3/cs121_A2Crawler/Logs/REMOVED.LOG", "a") as my_file:
-                    my_file.write(f"Blocked by hardcoded filter (stat.uci.edu): {url} path: {path}\n")
+                del_log_message(f"Blocked by hardcoded filter (stat.uci.edu) path: {path}", url)
                 return False
             # Allow specific research paths
             if path.startswith("/research/"):
@@ -208,14 +230,8 @@ def is_valid(url):
                     "/research/gifts-grants/",
                 ]
                 if not any(path.startswith(allowed_path) for allowed_path in allowed_research_paths):
-                    print(f"Blocked by hardcoded filter (stat.uci.edu): {url} path: {path} ")
-                    with open("/home/thomaht3/cs121_A2Crawler/Logs/REMOVED.LOG", "a") as my_file:
-                        my_file.write(f"Blocked by hardcoded filter (stat.uci.edu): {url}\n")
+                    del_log_message(f"Blocked by hardcoded filter (stat.uci.edu) path: {path}", url)
                     return False
-
-        if (is_valid_file and is_valid_domain == False):
-            with open("/home/thomaht3/cs121_A2Crawler/Logs/REMOVED.LOG", "a") as my_file:
-                my_file.write(f"FILE: {url} | valid file: {is_valid_file}; valid domain : {is_valid_domain}\n")
         return (is_valid_file and is_valid_domain)
 
     except TypeError:
