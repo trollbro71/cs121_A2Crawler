@@ -1,0 +1,181 @@
+﻿Largest Link:
+https://www.informatics.uci.edu/files/pdf/InformaticsBrochure-March2018
+Top words:
+1. fantastic - 184
+2. obliged - 143
+3. facile - 81
+4. anomalous - 57
+5. homepage - 43
+6. logit - 41
+7. bibtex - 39
+8. applause - 34
+9. null - 31
+10. viewers - 31
+11. prev - 30
+12. colorspace - 30
+13. parenleft - 30
+14. parenright - 30
+15. charset - 29
+16. mundo - 28
+17. flaws - 26
+18. compact - 25
+19. claim - 25
+20. neat - 25
+21. timespent - 25
+22. viewer - 24
+23. mediabox - 24
+24. thankies - 24
+25. midterm - 23
+26. hyphen - 22
+27. adipisicing - 22
+28. eiusmod - 22
+29. tempor - 22
+30. incididunt - 22
+31. labore - 22
+32. dolore - 22
+33. aliqua - 22
+34. judge - 22
+35. wishlist - 22
+36. departures - 22
+37. logy - 22
+38. booktitle - 21
+39. commander - 21
+40. varchar - 21
+41. grandeur - 21
+42. inquiry - 19
+43. phenomenon - 19
+44. covert - 19
+45. gracias - 19
+46. muchos - 19
+47. demonstrated - 18
+48. functioning - 18
+49. conditions - 17
+50. sections - 17
+Ics links:
+accessibility.ics.uci.edu - 3
+acoi.ics.uci.edu - 109
+aiclub.ics.uci.edu - 1
+archive.ics.uci.edu - 9
+asterix.ics.uci.edu - 8
+asterixdb.ics.uci.edu - 3
+auge.ics.uci.edu - 2
+biaslab.ics.uci.edu - 1
+cbcl.ics.uci.edu - 4
+cert.ics.uci.edu - 4
+cgvw.ics.uci.edu - 1
+cherry.ics.uci.edu - 1
+chenli.ics.uci.edu - 7
+chime.ics.uci.edu - 1
+cloudberry.ics.uci.edu - 52
+code.ics.uci.edu - 16
+codeexchange.ics.uci.edu - 2
+computableplant.ics.uci.edu - 41
+coronavirustwittermap.ics.uci.edu - 2
+cml.ics.uci.edu - 44
+courselisting.ics.uci.edu - 4
+create.ics.uci.edu - 6
+cradl.ics.uci.edu - 19
+cs.ics.uci.edu - 18
+cs260p-hub.ics.uci.edu - 2
+cs260p-staging-hub.ics.uci.edu - 2
+cyberclub.ics.uci.edu - 1
+dataguard.ics.uci.edu - 1
+dataprotector.ics.uci.edu - 1
+db.ics.uci.edu - 20
+dblp.ics.uci.edu - 2
+dgillen.ics.uci.edu - 30
+ds4all.ics.uci.edu - 3
+duttgroup.ics.uci.edu - 121
+dynamo.ics.uci.edu - 2
+edgelab.ics.uci.edu - 6
+eli.ics.uci.edu - 5
+emj.ics.uci.edu - 43
+emj-pc.ics.uci.edu - 1
+esl.ics.uci.edu - 1
+evoke.ics.uci.edu - 10
+flamingo.ics.uci.edu - 16
+fr.ics.uci.edu - 5
+futurehealth.ics.uci.edu - 5
+grape.ics.uci.edu - 57
+graphmod.ics.uci.edu - 1
+graphics.ics.uci.edu - 14
+hack.ics.uci.edu - 3
+hai.ics.uci.edu - 6
+hana.ics.uci.edu - 2
+helpdesk.ics.uci.edu - 6
+hobbes.ics.uci.edu - 2
+hombao.ics.uci.edu - 1
+honors.ics.uci.edu - 1
+hpi.ics.uci.edu - 6
+hub.ics.uci.edu - 6
+i-sensorium.ics.uci.edu - 1
+icde2023.ics.uci.edu - 48
+ics.uci.edu - 5251
+ics45c-hub.ics.uci.edu - 2
+ics45c-staging-hub.ics.uci.edu - 2
+ics46-hub.ics.uci.edu - 2
+ics46-staging-hub.ics.uci.edu - 2
+ics53-hub.ics.uci.edu - 2
+ics53-staging-hub.ics.uci.edu - 2
+ieee.ics.uci.edu - 2
+industryshowcase.ics.uci.edu - 22
+insite.ics.uci.edu - 1
+intranet.ics.uci.edu - 5
+ipubmed.ics.uci.edu - 2
+isg.ics.uci.edu - 279
+jgarcia.ics.uci.edu - 34
+julia-hub.ics.uci.edu - 2
+jujube.ics.uci.edu - 2
+kdd.ics.uci.edu - 1
+luci.ics.uci.edu - 8
+mailman.ics.uci.edu - 5
+malek.ics.uci.edu - 3
+mapgrid.ics.uci.edu - 1
+mdogucu.ics.uci.edu - 1
+mds.ics.uci.edu - 32
+mcs.ics.uci.edu - 13
+mhcid.ics.uci.edu - 19
+mhcis.ics.uci.edu - 1
+mondego.ics.uci.edu - 1
+mt-live.ics.uci.edu - 1
+mse.ics.uci.edu - 1
+mswe.ics.uci.edu - 10
+nalini.ics.uci.edu - 9
+ngs.ics.uci.edu - 2148
+oai.ics.uci.edu - 6
+omni.ics.uci.edu - 1
+password.ics.uci.edu - 2
+pasteur.ics.uci.edu - 2
+plrg.ics.uci.edu - 85
+psearch.ics.uci.edu - 4
+redmiles.ics.uci.edu - 1
+riscit.ics.uci.edu - 1
+satware.ics.uci.edu - 1
+sconce.ics.uci.edu - 1
+sdcl.ics.uci.edu - 208
+seal.ics.uci.edu - 7
+seraja.ics.uci.edu - 1
+sherlock.ics.uci.edu - 3
+sli.ics.uci.edu - 1322
+sprout.ics.uci.edu - 2
+stairs.ics.uci.edu - 1
+staging-hub.ics.uci.edu - 2
+student-council.ics.uci.edu - 1
+studentcouncil.ics.uci.edu - 6
+summeracademy.ics.uci.edu - 7
+swiki.ics.uci.edu - 4
+tad.ics.uci.edu - 1
+tastier.ics.uci.edu - 2
+tippers.ics.uci.edu - 2
+tippersweb.ics.uci.edu - 5
+transformativeplay.ics.uci.edu - 50
+tutoring.ics.uci.edu - 5
+tutors.ics.uci.edu - 1
+ugradforms.ics.uci.edu - 1
+unite.ics.uci.edu - 10
+vision.ics.uci.edu - 8
+wearablegames.ics.uci.edu - 13
+wics.ics.uci.edu - 1595
+wiki.ics.uci.edu - 9
+xtune.ics.uci.edu - 6
+yarra.ics.uci.edu - 1
